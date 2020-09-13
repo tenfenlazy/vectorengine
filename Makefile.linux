@@ -1,0 +1,4 @@
+UsedFrontend = gtk4
+PlatformPostfix = so
+
+include Makefile.unix

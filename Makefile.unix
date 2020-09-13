@@ -1,0 +1,38 @@
+TARGETS = ve_coretypes.o ve_paths.o
+
+CC ?= cc
+CFLAGS = -std=c99 -Wall -Wextra -I.
+LIBS = -lm
+TARGET = libveng.$(PlatformPostfix)
+
+ifdef $(DEBUG)
+CFLAGS += -Werror
+endif
+
+ifndef $(UsedBackend)
+UsedBackend = dummy
+endif
+
+ifeq ($(UsedBackend),gtk4)
+CFLAGS += $(shell pkg-config --cflags gtk4) -DVectorEngine_Platform_GTK=4
+LIBS := $(shell pkg-config --libs gtk4) $(LIBS)
+else
+CFLAGS += -DVectorEngine_Platform_Dummy
+endif
+
+all: lib
+
+lib: $(TARGET)
+
+$(TARGET): $(TARGETS)
+	$(CC) -shared -o "$@" $(TARGETS) $(LIBS)
+
+$(TARGETS):
+	@printf '\t%s\t\t%s\n' "$(CC)" "$@"
+	@$(CC) -c -o "$@" $(CFLAGS) "`basename "$@" .o`.c"
+
+clean: distclean
+
+distclean:
+	rm -rf $(TARGETS) $(TARGET) *.dSYM
+
